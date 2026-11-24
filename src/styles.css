@@ -453,3 +453,17 @@ hr { border: none; border-top: 1px solid var(--line); margin: 16px 0; }
 .tidy-row .check { width: 24px; height: 24px; border-radius: 8px; border: 2px solid var(--line); display: grid; place-items: center; color: #fff; flex: none; }
 .tidy-row.on .check { background: var(--fern); border-color: var(--fern); }
 .tidy-row:not(.on) { opacity: 0.6; }
+
+/* ------------------------------------------------------------------- go to */
+.fab.on { background: var(--sprout); }
+.goto-menu { position: absolute; z-index: 600; right: 68px; bottom: 88px; width: 230px; max-height: 60%; overflow-y: auto; background: var(--paper); border-radius: 16px; box-shadow: var(--float); padding: 6px; }
+.goto-head { display: flex; align-items: center; justify-content: space-between; padding: 6px 6px 6px 10px; }
+.goto-head b { font-family: var(--head); font-size: 1rem; }
+.goto-item { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px; border-radius: 12px; text-align: left; font-weight: 600; color: var(--ink); }
+.goto-item:active { background: var(--mist); }
+.goto-item small { color: var(--muted); font-weight: 550; font-variant-numeric: tabular-nums; }
+.goto-icon { width: 28px; height: 28px; border-radius: 9px; display: grid; place-items: center; flex: none; }
+.goto-icon.church { background: var(--forest); color: #fff; }
+.goto-icon.plain { background: var(--mist); color: var(--forest); }
+.goto-empty { padding: 4px 10px 10px; }
+.directions-btn { color: #1a73e8; background: #e8f0fe; border-radius: 50%; }

@@ -1,12 +1,12 @@
-import { Church, Hexagon, MapPin, Navigation, Plus, X } from 'lucide-react';
+import { Church, Hexagon, MapPin, Plus, X } from 'lucide-react';
 import { saveBranding } from '../branding';
 import { useState } from 'react';
 import { newHouse } from '../db';
 import { areaBoundary } from '../geocode';
 import { ICON } from '../icons';
 import { Action, useUI } from '../ui';
-import { directionsUrl } from '../util';
 import { ZoneForm } from './ZoneForm';
+import { Directions } from './Directions';
 
 /** Card for a place found with search: add a house there, turn an area into a zone, or get directions. */
 export function PlaceCard() {
@@ -46,6 +46,7 @@ export function PlaceCard() {
             <h2>{place.name}</h2>
             {place.detail && <div className="meta">{place.detail}</div>}
           </div>
+          <Directions lat={place.lat} lng={place.lng} />
           <button className="icon-btn" onClick={() => showPlace(null)} aria-label="Close">
             <X {...ICON} />
           </button>
@@ -80,7 +81,6 @@ export function PlaceCard() {
               }}
             />
           )}
-          <Action icon={Navigation} label="Go" href={directionsUrl(place.lat, place.lng)} />
         </div>
         {!canAdd && place.kind !== 'area' && <p className="muted small">This spot is outside your zone.</p>}
       </div>

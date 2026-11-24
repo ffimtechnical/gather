@@ -37,6 +37,7 @@ export interface UIState {
   showRoute: (r: [number, number][] | null) => void;
   flyTo: (lat: number, lng: number, zoom?: number) => void;
   fitZone: (zoneId: string) => void;
+  fitArea: (pts: [number, number][]) => void;
   mode: MapMode;
   setMode: (m: MapMode) => void;
   me: { lat: number; lng: number } | null;

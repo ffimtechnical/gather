@@ -2,7 +2,7 @@ import {
   Car,
   Footprints,
   Church as ChurchIcon,
-  CalendarClock, ChevronDown, ChevronUp, Clock, Heart, ListPlus, MoreHorizontal, Navigation, Pencil, Phone,
+  CalendarClock, ChevronDown, ChevronUp, Clock, Heart, ListPlus, MoreHorizontal, Pencil, Phone,
   MessageSquare, UserPlus, Users, X, DoorOpen, House as HouseIcon,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -14,8 +14,9 @@ import { quickLog, kindFor, markVacant, toggleMember } from '../actions';
 import { blankPerson, blankVisit } from '../db';
 import { ACTION_ICON, ICON, ICON_SM, KIND_ICON, OUTCOME_ICON } from '../icons';
 import { Action, Avatar, StatusTag, useUI } from '../ui';
-import { directionsUrl, distanceM, dueLabel, fmtDateTime, fmtDistance, phoneLinks, timeAgo } from '../util';
+import { distanceM, dueLabel, fmtDateTime, fmtDistance, phoneLinks, timeAgo } from '../util';
 import { AssignModal } from './AssignModal';
+import { Directions } from './Directions';
 import { HouseForm } from './HouseForm';
 import { PersonForm } from './PersonForm';
 import { VisitForm } from './VisitForm';
@@ -71,6 +72,7 @@ function HouseDetails({ house, onClose }: { house: House; onClose: () => void })
             {me && <span className="meta-item">{fmtDistance(distanceM(me, house))}</span>}
           </div>
         </div>
+        <Directions lat={house.lat} lng={house.lng} />
         <button className="icon-btn" onClick={onClose} aria-label="Close">
           <X {...ICON} />
         </button>
@@ -136,7 +138,6 @@ function HouseDetails({ house, onClose }: { house: House; onClose: () => void })
       <div className="actions">
         {phone && <Action icon={Phone} label="Call" href={phoneLinks(phone).tel} />}
         {phone && <Action icon={MessageSquare} label="WhatsApp" href={phoneLinks(phone).whatsapp} />}
-        <Action icon={Navigation} label="Go" href={directionsUrl(house.lat, house.lng)} />
         {church && <Action icon={ChurchIcon} label="To church" onClick={() => setShowChurch(!showChurch)} primary={showChurch} />}
         <Action icon={UserPlus} label="Person" onClick={() => openModal(<PersonForm person={blankPerson(house.id)} isNew />)} />
         {data.perms.assign && <Action icon={ListPlus} label="Assign" onClick={() => openModal(<AssignModal houseIds={[house.id]} />)} />}

@@ -1,5 +1,5 @@
 import L from 'leaflet';
-import { Check, Hexagon, ListChecks, LocateFixed, Plus, Sparkles, Undo2, X } from 'lucide-react';
+import { Check, Hexagon, ListChecks, LocateFixed, Plus, Signpost, Sparkles, Undo2, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { MapContainer, useMap, useMapEvents } from 'react-leaflet';
 import { STATUS_INFO, STATUS_ORDER, type Status } from '../../shared/model';
@@ -10,6 +10,7 @@ import { areaBoundary } from '../geocode';
 import { showBaseLayer, type LayerId } from '../tiles';
 import { useUI } from '../ui';
 import { AssignModal } from './AssignModal';
+import { GoToMenu } from './GoTo';
 import { FindHousesModal } from './FindHouses';
 import { SearchBar } from './SearchBar';
 import { SyncBadge } from './SyncBadge';
@@ -346,6 +347,7 @@ export function MapView({ visible }: { visible: boolean }) {
   const [outlining, setOutlining] = useState(false);
   const [map, setMap] = useState<L.Map | null>(null);
   const [layerId, setLayerId] = useState<LayerId>(() => (localStorage.getItem('ffim.base') as LayerId) || 'map');
+  const [goTo, setGoTo] = useState(false);
   const [hidden, setHidden] = useState<Set<Status>>(new Set());
   const watchId = useRef<number | null>(null);
   const initial = useMemo(savedView, []);
@@ -531,7 +533,11 @@ export function MapView({ visible }: { visible: boolean }) {
 
       {browsing && !selectedId && (
         <>
+          {goTo && !place && <GoToMenu onClose={() => setGoTo(false)} />}
           <div className={`fab-stack ${place ? 'hidden' : ''}`}>
+            <button className={`fab ${goTo ? 'on' : ''}`} data-goto onClick={() => setGoTo(!goTo)} aria-label="Go to the church or a zone" aria-expanded={goTo} title="Go to">
+              <Signpost {...ICON} />
+            </button>
             <button className="fab" onClick={() => locate()} aria-label="Show my location" title="My location">
               <LocateFixed {...ICON} />
             </button>

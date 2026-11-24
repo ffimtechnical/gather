@@ -2,6 +2,7 @@
 
 FFIM Gather helps our church visit every house in our area, remember who we met, and keep checking on our members.
 
+This page shows how to use it. If you are setting the app up, see [docs/SETUP.md](docs/SETUP.md).
 
 **Contents**
 
@@ -50,7 +51,15 @@ A dark circle around a dot means the house is one of **your tasks**.
 
 <img src="docs/images/02-map.png" alt="Map with coloured house dots, the church and a zone" width="240">
 
-### 4. See your tasks
+### 4. Jump to the church or a zone
+
+Tap the **signpost button** on the right side of the map. Then pick the church, one of your zones, or **All my houses**, and the map takes you there.
+
+To get directions to a house, open the house and tap the **blue arrow** at the top. Google Maps opens with directions from where you are.
+
+<img src="docs/images/15-go-to.png" alt="The Go to menu, and the directions button on a house" width="480">
+
+### 5. See your tasks
 
 Tap **Tasks**. It shows the houses your pastor gave you, starting with the most urgent.
 
@@ -61,7 +70,7 @@ Below your tasks, **Due in your zone** lists other houses that need a follow-up.
 
 <img src="docs/images/03-my-tasks.png" alt="My tasks list" width="240">
 
-### 5. Record a visit in one tap
+### 6. Record a visit in one tap
 
 Tap a house on the map. Then tap what happened: **Prayed**, **Good talk**, **Invited** or **Not home**.
 
@@ -71,7 +80,7 @@ Made a mistake? Tap **Undo**.
 
 <img src="docs/images/04-log-visit.png" alt="Tapping Prayed on a house" width="480">
 
-### 6. Save the person you met
+### 7. Save the person you met
 
 After a visit, tap **Add contact** in the message at the top. You can also tap **Person** on the house.
 
@@ -81,7 +90,7 @@ If the person is already on the church's list, they show up as you type. Tap **U
 
 <img src="docs/images/05-add-person.png" alt="Adding a person with name and phone" width="480">
 
-### 7. Someone joined the church
+### 8. Someone joined the church
 
 Tap the **heart** next to their name. It turns green, and so does their house.
 
@@ -89,7 +98,7 @@ From then on, the house shows up in the weekly member check-ups.
 
 <img src="docs/images/06-member.png" alt="Green heart next to a member's name" width="240">
 
-### 8. The house is empty
+### 9. The house is empty
 
 If nobody lives in a house (empty, unfinished or abandoned), tap **Not home**, then tap **House is empty**.
 
@@ -97,7 +106,7 @@ The dot becomes a blue ring and stops showing up as a follow-up. If people move 
 
 <img src="docs/images/07-empty-house.png" alt="Marking a house as empty" width="480">
 
-### 9. A house is missing from the map
+### 10. A house is missing from the map
 
 1. Tap **Add house**.
 2. Tap the exact spot on the map.
@@ -106,7 +115,7 @@ The new pin appears there. If it's in the wrong place, press and drag it to the 
 
 <img src="docs/images/08-add-house.png" alt="Adding a house by tapping the map" width="480">
 
-### 10. Ask Gather
+### 11. Ask Gather
 
 Tap **Ask**. You can type, or tap the **mic** and speak.
 
@@ -118,7 +127,7 @@ Before Gather changes anything, it shows you what it will do. Tap **Confirm** to
 
 <img src="docs/images/09-ask.png" alt="Gather asking to confirm a visit" width="240">
 
-### 11. No network? Keep going
+### 12. No network? Keep going
 
 Everything you do is saved on your phone first, and it goes to the church's records when you're back online.
 
@@ -202,8 +211,15 @@ Tell your zone pastor. They can delete it (tap it, then **Edit**) or run **Tidy 
 **Someone doesn't want visits.**
 Tap the house, tap **Edit**, and switch on **Do not visit**. The dot turns grey.
 
+**How do I get to a house?**
+Open the house and tap the blue arrow at the top for directions in Google Maps. On a task, tap its arrow.
+
 **Where are my changes?**
 Look at the button at the top right of the map. A tick means everything is saved. A number means changes are waiting to be sent, which happens as soon as you're online.
 
 **Who can see what?**
 Team members see their own zone. Zone pastors see their zones. Admins see everything.
+
+---
+
+*The pictures in this guide use made-up names and a made-up neighbourhood.*

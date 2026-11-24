@@ -73,21 +73,26 @@ function Main({ sessionUser }: { sessionUser: User }) {
     const zoom = p.kind === 'area' ? 15 : p.kind === 'street' ? 17 : 18;
     setFocus({ lat: p.lat, lng: p.lng, zoom, bounds: p.kind === 'area' ? p.bounds : undefined, n: Date.now() });
   }, []);
+  /** Show a whole area on the map (a zone, all houses…). */
+  const fitArea = useCallback((pts: [number, number][]) => {
+    if (!pts.length) return;
+    const b = L.latLngBounds(pts);
+    const c = b.getCenter();
+    setTab('map');
+    select(null);
+    setFocus({ lat: c.lat, lng: c.lng, bounds: [b.getSouth(), b.getWest(), b.getNorth(), b.getEast()], n: Date.now() });
+  }, []);
   const fitZone = useCallback(
     (zoneId: string) => {
       const z = data.zoneById.get(zoneId);
-      if (!z || z.polygon.length < 3) return;
-      const c = L.latLngBounds(z.polygon).getCenter();
-      setTab('map');
-      select(null);
-      setFocus({ lat: c.lat, lng: c.lng, zoom: 16, n: Date.now() });
+      if (z && z.polygon.length >= 3) fitArea(z.polygon);
     },
-    [data.zoneById],
+    [data.zoneById, fitArea],
   );
 
   const ui: UIState = useMemo(
     () => ({
-      data, tab, selectedId, select, showHouse, focus, flyTo, fitZone, mode, setMode, me, setMe, toast, place, showPlace, route, showRoute,
+      data, tab, selectedId, select, showHouse, focus, flyTo, fitZone, fitArea, mode, setMode, me, setMe, toast, place, showPlace, route, showRoute,
       setTab: (t) => {
         setTab(t);
         if (t !== 'map') setMode({ kind: 'browse' });
@@ -95,7 +100,7 @@ function Main({ sessionUser }: { sessionUser: User }) {
       openModal: setModal,
       closeModal: () => setModal(null),
     }),
-    [data, tab, selectedId, showHouse, focus, flyTo, fitZone, mode, me, toast, place, showPlace, route],
+    [data, tab, selectedId, showHouse, focus, flyTo, fitZone, fitArea, mode, me, toast, place, showPlace, route],
   );
 
   const tabs: { id: Tab; icon: LucideIcon; label: string; badge?: number }[] = [
