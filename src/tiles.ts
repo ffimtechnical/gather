@@ -35,11 +35,29 @@ export function webglOK(): boolean {
   return glSupport;
 }
 
+let baseStyle: Promise<StyleSpecification> | null = null;
+/**
+ * The map style, tidied once: road-number shields are dropped. They're for US/European highway numbers
+ * (not used in Ghana) and their filters make the map library print warnings in the console.
+ */
+function mapStyle(): Promise<StyleSpecification> {
+  baseStyle ??= fetch(MAP_STYLE)
+    .then((r) => {
+      if (!r.ok) throw new Error(`Map style ${r.status}`);
+      return r.json() as Promise<StyleSpecification>;
+    })
+    .then((style) => ({ ...style, layers: style.layers.filter((l) => !/shield/i.test(l.id)) }))
+    .catch((e) => {
+      baseStyle = null;
+      throw e;
+    });
+  return baseStyle;
+}
+
 let labelsStyle: Promise<StyleSpecification> | null = null;
 /** The OpenStreetMap style with only labels, landmarks and roads, for drawing over satellite photos. */
 function labelsOnlyStyle(): Promise<StyleSpecification> {
-  labelsStyle ??= fetch(MAP_STYLE)
-    .then((r) => r.json() as Promise<StyleSpecification>)
+  labelsStyle ??= mapStyle()
     .then((style) => ({
       ...style,
       layers: style.layers
@@ -72,7 +90,10 @@ export function showBaseLayer(map: L.Map, id: LayerId): () => void {
   const hasGL = webglOK();
 
   if (id === 'map') {
-    if (hasGL) gl().then((m) => add(m.maplibreGL({ style: MAP_STYLE }))).catch(() => add(fallbackStreets()));
+    if (hasGL)
+      Promise.all([gl(), mapStyle()])
+        .then(([m, style]) => add(m.maplibreGL({ style })))
+        .catch(() => add(fallbackStreets()));
     else add(fallbackStreets());
   } else {
     add(L.tileLayer(PHOTO_TILES, { maxNativeZoom: 19, maxZoom: 21, attribution: PHOTO_ATTR }));

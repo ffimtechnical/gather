@@ -13,6 +13,7 @@ import { setSession } from '../session';
 import { syncNow } from '../sync';
 import { Avatar, Toggle, useUI } from '../ui';
 import { syncLabel, useSyncState } from './SyncBadge';
+import { InstallApp } from './InstallApp';
 import { UserForm } from './UserForm';
 import { ZoneForm } from './ZoneForm';
 
@@ -72,6 +73,8 @@ export function Manage() {
         <span className="grow">{label.text}</span>
         <RefreshCw {...ICON_SM} />
       </button>
+
+      <InstallApp />
 
       {perms.isAdmin && (
         <section className="block brand-block">

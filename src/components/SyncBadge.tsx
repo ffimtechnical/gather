@@ -13,7 +13,7 @@ export function useSyncState() {
 export function syncLabel(s: SyncState): { icon: LucideIcon; text: string; tone: 'ok' | 'warn' | 'busy' | 'bad' } {
   switch (s.kind) {
     case 'syncing':
-      return { icon: RefreshCw, text: 'Syncing', tone: 'busy' };
+      return { icon: RefreshCw, text: s.progress !== undefined ? `Syncing ${Math.round(s.progress * 100)}%` : 'Syncing', tone: 'busy' };
     case 'offline':
       return { icon: CloudOff, text: s.pending ? `Offline, ${s.pending} saved on this phone` : 'Offline, all saved on this phone', tone: 'warn' };
     case 'signed-out':
@@ -42,8 +42,18 @@ export function SyncBadge() {
       title={l.text}
       aria-label={l.text}
     >
-      <Icon size={19} strokeWidth={1.9} className={s.kind === 'syncing' ? 'spin' : ''} />
-      {s.pending > 0 && <i>{s.pending > 99 ? '99+' : s.pending}</i>}
+      {s.kind === 'syncing' && s.progress !== undefined ? (
+        <span className="sync-pct">{Math.round(s.progress * 100)}%</span>
+      ) : (
+        <Icon size={19} strokeWidth={1.9} className={s.kind === 'syncing' ? 'spin' : ''} />
+      )}
+      {s.pending > 0 && s.kind !== 'syncing' && <i>{s.pending > 99 ? '99+' : s.pending}</i>}
+      {s.kind === 'syncing' && s.progress !== undefined && (
+        <svg className="sync-ring" viewBox="0 0 36 36" aria-hidden="true">
+          <circle cx="18" cy="18" r="16" />
+          <circle cx="18" cy="18" r="16" style={{ strokeDasharray: `${s.progress * 100.5} 100.5` }} />
+        </svg>
+      )}
     </button>
   );
 }

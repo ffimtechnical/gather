@@ -3,7 +3,10 @@ import { PUSH_TABLES, TABLE_NAMES, type Row, type TableName } from '../shared/mo
 import { db, onLocalChange, table } from './db';
 import { API, getSession, setSession } from './session';
 
-const BATCH = 1000;
+/** Changes sent per request. */
+const BATCH = 2000;
+/** A request that takes longer than this is treated as lost (the next sync retries). */
+const TIMEOUT_MS = 60_000;
 
 export type SyncKind = 'idle' | 'syncing' | 'offline' | 'signed-out' | 'error';
 export interface SyncState {
@@ -11,6 +14,8 @@ export interface SyncState {
   pending: number;
   lastSync: string | null;
   message?: string;
+  /** 0–1 while downloading a lot (e.g. first sign-in) */
+  progress?: number;
 }
 
 let state: SyncState = { kind: 'idle', lastSync: null, pending: 0 };
@@ -64,13 +69,14 @@ async function doSync({ full = false }: { full?: boolean }): Promise<void> {
   const pending = await db.outbox.count();
   if (!session) return set({ kind: 'signed-out', pending, lastSync });
   if (!navigator.onLine) return set({ kind: 'offline', pending, lastSync });
-  set({ kind: 'syncing', pending, lastSync });
+  set({ kind: 'syncing', pending, lastSync, progress: undefined });
+  const startPending = pending;
 
   try {
     let cursor = full ? 0 : await meta<number>('cursor', 0);
     let more = true;
     let rounds = 0;
-    while (more && rounds++ < 200) {
+    while (more && rounds++ < 500) {
       const items = (await db.outbox.limit(BATCH).toArray()).filter((i) => PUSH_TABLES.includes(i.table));
       const changes: Partial<Record<TableName, Row[]>> = {};
       const sentAt = new Map<string, string>();
@@ -86,9 +92,14 @@ async function doSync({ full = false }: { full?: boolean }): Promise<void> {
         method: 'POST',
         headers: { 'content-type': 'application/json', authorization: `Bearer ${session.token}` },
         body: JSON.stringify({ cursor, changes }),
+        signal: AbortSignal.timeout(TIMEOUT_MS),
       }).catch(() => null);
 
-      if (!res) return set({ kind: 'offline', pending: await db.outbox.count() });
+      if (!res) {
+        // No answer: either no internet or the server took too long. Try again shortly.
+        setTimeout(() => void syncNow(), 15_000);
+        return set({ kind: navigator.onLine ? 'error' : 'offline', message: navigator.onLine ? 'Server is slow to answer. Retrying…' : undefined, pending: await db.outbox.count(), progress: undefined });
+      }
       if (res.status === 401) {
         setSession(null);
         return set({ kind: 'signed-out', pending: await db.outbox.count() });
@@ -128,13 +139,20 @@ async function doSync({ full = false }: { full?: boolean }): Promise<void> {
 
       cursor = data.cursor;
       await setMeta('cursor', cursor);
-      more = Boolean(data.more) || (await db.outbox.count()) > 0;
+      const left = await db.outbox.count();
+      more = Boolean(data.more) || left > 0;
+      // Show how far along a long download/upload is
+      if (more) {
+        const down = data.maxRev ? Math.min(1, cursor / data.maxRev) : 1;
+        const up = startPending ? 1 - left / startPending : 1;
+        set({ pending: left, progress: Math.min(down, up) });
+      }
     }
     const now = new Date().toISOString();
     await setMeta('lastSync', now);
-    set({ kind: 'idle', lastSync: now, pending: await db.outbox.count(), message: undefined });
+    set({ kind: 'idle', lastSync: now, pending: await db.outbox.count(), message: undefined, progress: undefined });
   } catch (e) {
-    set({ kind: 'error', message: e instanceof Error ? e.message : String(e), pending: await db.outbox.count() });
+    set({ kind: 'error', message: e instanceof Error ? e.message : String(e), pending: await db.outbox.count(), progress: undefined });
   }
 }
 

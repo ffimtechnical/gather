@@ -6,6 +6,7 @@ import { db, wipeLocalData } from '../db';
 import { ROLE_ICON } from '../icons';
 import { api, setSession } from '../session';
 import { Avatar } from '../ui';
+import { InstallApp } from './InstallApp';
 
 interface TeamEntry {
   id: string;
@@ -122,6 +123,7 @@ export function Login() {
               })}
             </div>
             <p className="muted small center">Not listed? Ask your zone pastor to add you.</p>
+            <InstallApp compact />
           </>
         )}
 

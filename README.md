@@ -79,6 +79,17 @@ Free limits (late 2026, they change): Groq's free plan allows roughly 1,000 chat
 
 ---
 
+## Install it like an app
+
+Once it's live on Vercel, open the site on a phone:
+
+- **Android (Chrome, Edge, Samsung Internet):** sign in, open **Manage** and tap **Install on this phone** (or "Install app" on the sign-in screen).
+- **iPhone/iPad (Safari):** tap **Share**, then **Add to Home Screen**. The app shows these two steps if you tap Install.
+
+It then opens from its own icon, full screen, with no address bar. The address bar can't be hidden on a plain browser tab, and the install button only appears on the live https site (or localhost), not on a LAN address like 192.168.x.x.
+
+**Syncing a lot of data:** the first sign-in on a new phone downloads everything in the person's area. With about 25,000 houses that's 5 pages, usually a few seconds. The sync button shows a percentage while it runs. If the server doesn't answer within a minute, the app stops waiting and tries again 15 seconds later, so syncing can't get stuck.
+
 ## The map and search (all open source, no API keys)
 
 | Part | What it uses |

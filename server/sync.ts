@@ -8,7 +8,8 @@ import type { Query } from './db.js';
 import { ensureSchema } from './schema.js';
 
 const MAX_PUSH = 5000;
-const PAGE = 3000;
+/** Revisions per page. ~5,000 keeps each response well under hosting limits (≈2.5 MB). */
+const PAGE = 5000;
 /** Re-read a few revisions on every pull to cover writes that finished late. */
 const OVERLAP = 50;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -151,34 +152,38 @@ export async function handleSync(req: SyncRequest, me: User, q: Query): Promise<
   const since = Math.max(0, cursor - OVERLAP);
   const upper = Math.min(since + PAGE, maxRev);
   const out: Record<string, unknown[]> = {};
-  for (const t of TABLE_NAMES) {
-    if (since >= upper) {
-      out[t] = [];
-      continue;
-    }
-    let where = 'rev > $1 AND rev <= $2';
-    const params: unknown[] = [since, upper];
-    if (scope !== null) {
-      if (t === 'houses') where += ' AND zone_id = ANY($3::uuid[])';
-      else if (t === 'people')
-        // people in my zones, plus the members list (members whose house isn't mapped yet)
-        where += ' AND (house_id IS NULL OR house_id IN (SELECT id FROM houses WHERE zone_id = ANY($3::uuid[])))';
-      else if (t === 'visits' || t === 'tasks')
-        where += ' AND house_id IN (SELECT id FROM houses WHERE zone_id = ANY($3::uuid[]))';
-      else if (t === 'users')
-        where += ' AND (id = $4 OR zone_id = ANY($3::uuid[]) OR id IN (SELECT pastor_id FROM zones WHERE id = ANY($3::uuid[])))';
-      if (t !== 'zones') params.push(zoneList);
-      if (t === 'users') params.push(me.id);
-    }
-    const rows = await q(`SELECT ${cols(t)} FROM ${t} WHERE ${where} ORDER BY rev`, params);
-    out[t] = rows.map((r) => normalize(t, r));
-  }
+  // All tables are read at the same time (one round trip to the database instead of six)
+  await Promise.all(
+    TABLE_NAMES.map(async (t) => {
+      if (since >= upper) {
+        out[t] = [];
+        return;
+      }
+      let where = 'rev > $1 AND rev <= $2';
+      const params: unknown[] = [since, upper];
+      if (scope !== null) {
+        if (t === 'houses') where += ' AND zone_id = ANY($3::uuid[])';
+        else if (t === 'people')
+          // people in my zones, plus the members list (members whose house isn't mapped yet)
+          where += ' AND (house_id IS NULL OR house_id IN (SELECT id FROM houses WHERE zone_id = ANY($3::uuid[])))';
+        else if (t === 'visits' || t === 'tasks')
+          where += ' AND house_id IN (SELECT id FROM houses WHERE zone_id = ANY($3::uuid[]))';
+        else if (t === 'users')
+          where += ' AND (id = $4 OR zone_id = ANY($3::uuid[]) OR id IN (SELECT pastor_id FROM zones WHERE id = ANY($3::uuid[])))';
+        if (t !== 'zones') params.push(zoneList);
+        if (t === 'users') params.push(me.id);
+      }
+      const rows = await q(`SELECT ${cols(t)} FROM ${t} WHERE ${where} ORDER BY rev`, params);
+      out[t] = rows.map((r) => normalize(t, r));
+    }),
+  );
 
   return {
     status: 200,
     body: {
       cursor: upper,
       more: upper < maxRev,
+      maxRev,
       pushed,
       rejected,
       // Changes when this person's role or zones change → the phone re-downloads its data.
