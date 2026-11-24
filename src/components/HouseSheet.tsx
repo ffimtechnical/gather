@@ -3,14 +3,14 @@ import {
   Footprints,
   Church as ChurchIcon,
   CalendarClock, ChevronDown, ChevronUp, Clock, Heart, ListPlus, MoreHorizontal, Navigation, Pencil, Phone,
-  MessageSquare, UserPlus, Users, X,
+  MessageSquare, UserPlus, Users, X, DoorOpen, House as HouseIcon,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useBranding } from '../branding';
 import { routeToChurch } from '../churchDistance';
 import type { Route } from '../routing';
 import { OUTCOMES, TASK_ACTIONS, VISIT_KINDS, type House, type Person, type Task, type Visit } from '../../shared/model';
-import { quickLog, kindFor, toggleMember } from '../actions';
+import { quickLog, kindFor, markVacant, toggleMember } from '../actions';
 import { blankPerson, blankVisit } from '../db';
 import { ACTION_ICON, ICON, ICON_SM, KIND_ICON, OUTCOME_ICON } from '../icons';
 import { Action, Avatar, StatusTag, useUI } from '../ui';
@@ -101,7 +101,20 @@ function HouseDetails({ house, onClose }: { house: House; onClose: () => void })
         <TaskLine key={t.id} t={t} />
       ))}
 
-      {status !== 'dnv' && (
+      {status === 'vacant' && (
+        <div className="vacant-bar">
+          <DoorOpen {...ICON} />
+          <span className="grow">
+            Nobody lives here
+            {visits[0] && <small>Checked {timeAgo(visits[0].visited_at).toLowerCase()}</small>}
+          </span>
+          <button className="btn small ghost" onClick={() => void markVacant(ui, house, false)}>
+            <HouseIcon size={16} /> Lived in now
+          </button>
+        </div>
+      )}
+
+      {status !== 'dnv' && status !== 'vacant' && (
         <div className="quick-log" role="group" aria-label="Log a visit">
           {QUICK.map((o) => {
             const info = OUTCOMES.find((x) => x.value === o)!;

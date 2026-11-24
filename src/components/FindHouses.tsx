@@ -2,15 +2,14 @@ import type L from 'leaflet';
 import { Home } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { pointInPolygon } from '../../shared/model';
-import { addBuildings, findBuildings, MAX_TILES, tileCount, type FoundBuilding } from '../osm';
+import { addBuildings, areaSize, findBuildings, notYetPinned, type FoundBuilding } from '../osm';
 import { Chips, Modal, Toggle, useUI } from '../ui';
 import type { Bounds } from '../vtiles';
 
 export function FindHousesModal({ bounds }: { bounds: L.LatLngBounds }) {
   const { closeModal, toast, data } = useUI();
   const myZones = data.zones.filter((z) => z.polygon.length >= 3 && (data.myZoneIds === null || data.myZoneIds.includes(z.id)));
-  const screenTiles = tileCount({ south: bounds.getSouth(), west: bounds.getWest(), north: bounds.getNorth(), east: bounds.getEast() });
-  const [scope, setScope] = useState<string>(screenTiles > MAX_TILES && myZones[0] ? myZones[0].id : 'screen');
+  const [scope, setScope] = useState<string>('screen');
   const [homesOnly, setHomesOnly] = useState(true);
   const [found, setFound] = useState<FoundBuilding[] | null>(null);
   const [err, setErr] = useState<string | null>(null);
@@ -33,23 +32,33 @@ export function FindHousesModal({ bounds }: { bounds: L.LatLngBounds }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scope]);
 
+  const [tooBig, setTooBig] = useState(false);
   useEffect(() => {
     let alive = true;
     setFound(null);
     setErr(null);
-    setProgress([0, tileCount(area.b)]);
-    findBuildings(area.b, { homesOnly, inside: area.inside, onProgress: (d, t) => alive && setProgress([d, t]) })
-      .then((f) => alive && setFound(f))
+    setTooBig(false);
+    setProgress(null);
+    areaSize(area.b)
+      .then(({ tooBig: big }) => {
+        if (!alive) return;
+        if (big) {
+          // the screen is too big: suggest the first zone instead
+          if (scope === 'screen' && myZones[0]) setScope(myZones[0].id);
+          else setTooBig(true);
+          return;
+        }
+        return findBuildings(area.b, { homesOnly, inside: area.inside, onProgress: (d, t) => alive && setProgress([d, t]) })
+          .then((f) => alive && setFound(f));
+      })
       .catch((e) => alive && setErr(e.message || 'Could not load building data. Check your connection and try again.'));
     return () => {
       alive = false;
     };
   }, [area, homesOnly]);
 
-  const known = useMemo(() => new Set(data.houses.map((h) => h.osm_id).filter(Boolean)), [data.houses]);
-  const fresh = (found ?? []).filter((f) => !known.has(f.key));
+  const fresh = useMemo(() => (found ? notYetPinned(found, data.houses) : []), [found, data.houses]);
   const already = (found?.length ?? 0) - fresh.length;
-  const tooBig = tileCount(area.b) > MAX_TILES;
 
   return (
     <Modal title="Find houses" onClose={closeModal}>
@@ -81,7 +90,7 @@ export function FindHousesModal({ bounds }: { bounds: L.LatLngBounds }) {
             </p>
           )}
         </div>
-        <p className="muted small">Building outlines from Google, Microsoft and OpenStreetMap. Houses already on your map are skipped.</p>
+        <p className="muted small">Buildings from OpenStreetMap, Google and Microsoft, checked so each building gets one pin. Buildings that already have a pin are skipped.</p>
         <div className="form-actions">
           <span className="grow" />
           <button

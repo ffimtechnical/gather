@@ -1,6 +1,6 @@
 import {
   Bell, DatabaseBackup, FileSpreadsheet, Heart, House, ListChecks, LogOut, Map as MapIcon, PenLine, Plus,
-  RefreshCw, RotateCcw, Upload, Users, ImageUp, Church, MapPin,
+  RefreshCw, RotateCcw, Upload, Users, ImageUp, Church, MapPin, Sparkles,
 } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { ROLES } from '../../shared/model';
@@ -14,6 +14,7 @@ import { syncNow } from '../sync';
 import { Avatar, Toggle, useUI } from '../ui';
 import { syncLabel, useSyncState } from './SyncBadge';
 import { InstallApp } from './InstallApp';
+import { TidyPinsModal } from './TidyPins';
 import { UserForm } from './UserForm';
 import { ZoneForm } from './ZoneForm';
 
@@ -245,6 +246,16 @@ export function Manage() {
           })}
           {!data.zones.length && <p className="muted small">Outline the areas your church covers, then give each a zone pastor.</p>}
         </section>
+      )}
+
+      {perms.deleteHouses && data.houses.some((h) => h.source === 'auto') && (
+        <button className="sync-row tidy-entry" onClick={() => openModal(<TidyPinsModal />)}>
+          <Sparkles {...ICON} />
+          <span className="grow">
+            Tidy up pins
+            <small>Remove pins that aren’t buildings or are doubled, add missed homes</small>
+          </span>
+        </button>
       )}
 
       {perms.export && (

@@ -10,6 +10,7 @@ export const OUTCOME_ICON: Record<string, LucideIcon> = {
   good_chat: MessageCircle,
   invited: Church,
   not_home: DoorClosed,
+  vacant: DoorOpen,
   gave_life: Cross,
   came_to_church: CalendarCheck,
   needs_help: HeartHandshake,

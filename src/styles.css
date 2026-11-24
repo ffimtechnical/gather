@@ -436,3 +436,20 @@ hr { border: none; border-top: 1px solid var(--line); margin: 16px 0; }
 .ios-card li { display: flex; align-items: center; gap: 12px; }
 .ios-step { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: var(--mist); color: #0a7aff; flex: none; }
 .ios-close { position: absolute; top: 10px; right: 10px; }
+
+/* ------------------------------------------------------------------- empty house */
+.vacant-bar { display: flex; align-items: center; gap: 10px; padding: 10px 12px; margin: 4px 0 10px; border-radius: 14px; border: 1.5px dashed #5d7895; color: #3f5a77; }
+.vacant-bar .grow { display: flex; flex-direction: column; font-weight: 650; color: var(--ink); }
+.vacant-bar small { color: var(--muted); font-weight: 500; }
+
+/* ------------------------------------------------------------------- tidy pins */
+.tidy-entry .grow { display: flex; flex-direction: column; }
+.tidy-entry small { color: var(--muted); font-weight: 500; font-size: 0.82rem; }
+.tidy-list { display: grid; gap: 8px; }
+.tidy-row { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px; background: var(--mist); color: var(--forest); text-align: left; }
+.tidy-row .grow { color: var(--ink); }
+.tidy-row b { font-family: var(--head); font-size: 1.25rem; font-weight: 650; margin-right: 2px; }
+.tidy-row small { display: block; color: var(--muted); font-size: 0.8rem; }
+.tidy-row .check { width: 24px; height: 24px; border-radius: 8px; border: 2px solid var(--line); display: grid; place-items: center; color: #fff; flex: none; }
+.tidy-row.on .check { background: var(--fern); border-color: var(--fern); }
+.tidy-row:not(.on) { opacity: 0.6; }

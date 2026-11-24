@@ -46,6 +46,7 @@ export function exportHouses(d: AppData) {
       Members: people.filter((p) => p.is_member).length,
       'Member household': yesNo(h.is_member_household),
       'Do not visit': yesNo(h.do_not_visit),
+      'Empty house': yesNo(h.vacant),
       'Visits logged': visits.length,
       'Last contact': lastContact(visits)?.visited_at?.slice(0, 10) ?? '',
       'Next visit': h.next_visit_on,

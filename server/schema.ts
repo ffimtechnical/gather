@@ -55,12 +55,13 @@ export function schemaStatements(): string[] {
   out.push(`DROP VIEW IF EXISTS house_overview`);
   out.push(`CREATE VIEW house_overview AS
 SELECT h.id, h.code, h.name, h.address, h.area, h.zone_id, z.name AS zone_name, h.lat, h.lng, h.household_size,
-       h.is_member_household, h.do_not_visit, h.next_visit_on, h.external_ref,
+       h.is_member_household, h.do_not_visit, h.vacant, h.next_visit_on, h.external_ref,
        COALESCE(p.people_count, 0) AS people_count,
        COALESCE(p.member_count, 0) AS member_count,
        v.last_contact_at,
        CASE
          WHEN h.do_not_visit THEN 'do_not_visit'
+         WHEN h.vacant THEN 'empty_house'
          WHEN h.is_member_household OR COALESCE(p.member_count, 0) > 0 THEN 'member'
          WHEN v.last_contact_at IS NULL THEN 'not_evangelised'
          WHEN v.last_contact_at >= date_trunc('week', now()) THEN 'checked_this_week'
@@ -74,7 +75,7 @@ LEFT JOIN (
 ) p ON p.house_id = h.id
 LEFT JOIN (
   SELECT house_id, max(visited_at) AS last_contact_at
-  FROM visits WHERE NOT deleted AND COALESCE(outcome, '') <> 'not_home' GROUP BY house_id
+  FROM visits WHERE NOT deleted AND COALESCE(outcome, '') NOT IN ('not_home', 'vacant') GROUP BY house_id
 ) v ON v.house_id = h.id
 WHERE NOT h.deleted`);
   return out;

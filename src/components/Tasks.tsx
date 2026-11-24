@@ -304,7 +304,7 @@ function LeadBoard() {
 
 function ZoneBar({ name, color, houses, pastorId, active, onClick }: { name: string; color: string; houses: House[]; pastorId?: string | null; active?: boolean; onClick?: () => void }) {
   const { data } = useUI();
-  const counts: Record<Status, number> = { new: 0, due: 0, done: 0, member: 0, dnv: 0 };
+  const counts: Record<Status, number> = { new: 0, due: 0, done: 0, member: 0, vacant: 0, dnv: 0 };
   for (const h of houses) counts[data.statusById.get(h.id)!]++;
   const total = houses.length || 1;
   const pastor = pastorId ? data.userById.get(pastorId) : undefined;
@@ -319,7 +319,7 @@ function ZoneBar({ name, color, houses, pastorId, active, onClick }: { name: str
         <span className="zb-pct">{reached}%</span>
       </span>
       <span className="growth" aria-label={STATUS_ORDER.map((s) => `${STATUS_INFO[s].label}: ${counts[s]}`).join(', ')}>
-        {(['member', 'done', 'due', 'new', 'dnv'] as Status[]).map((s) =>
+        {(['member', 'done', 'due', 'new', 'vacant', 'dnv'] as Status[]).map((s) =>
           counts[s] ? <span key={s} style={{ flexGrow: counts[s] / total, background: STATUS_INFO[s].color }} /> : null,
         )}
         {!houses.length && <span style={{ flexGrow: 1 }} className="growth-empty" />}

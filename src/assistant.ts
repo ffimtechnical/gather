@@ -123,6 +123,7 @@ export function toolDefs(d: AppData) {
       household_size: { type: 'number' },
       is_member_household: { type: 'boolean' },
       do_not_visit: { type: 'boolean' },
+      vacant: { type: 'boolean', description: 'Nobody lives there (empty or unfinished building)' },
       next_visit_on: { type: 'string', description: 'YYYY-MM-DD' },
       notes: { type: 'string' },
     }, ['code']),
@@ -428,6 +429,7 @@ function prepareWrite(name: string, a: Args, { d }: Ctx): { title: string; lines
       if (a.household_size !== undefined) (patch.household_size = Number(a.household_size)), lines.push(`People living here: ${a.household_size}`);
       if (a.is_member_household !== undefined) (patch.is_member_household = Boolean(a.is_member_household)), lines.push(`Member household: ${a.is_member_household ? 'yes' : 'no'}`);
       if (a.do_not_visit !== undefined) (patch.do_not_visit = Boolean(a.do_not_visit)), lines.push(`Do not visit: ${a.do_not_visit ? 'yes' : 'no'}`);
+      if (a.vacant !== undefined) (patch.vacant = Boolean(a.vacant)), lines.push(`Empty house: ${a.vacant ? 'yes' : 'no'}`);
       if (a.next_visit_on !== undefined) (patch.next_visit_on = String(a.next_visit_on) || null), lines.push(`Next visit: ${a.next_visit_on}`);
       if (a.notes !== undefined) (patch.description = String(a.notes) || null), lines.push(`Notes: ${a.notes}`);
       if (!lines.length) throw new Error('Nothing to change');

@@ -114,11 +114,12 @@ function HouseLayer({ hidden }: { hidden: Set<Status> }) {
       if (hidden.has(st) && h.id !== selectedId) continue;
       seen.add(h.id);
       const isPicked = picked.has(h.id);
+      const empty = st === 'vacant' && !isPicked; // empty houses: a hollow ring
       const style: L.CircleMarkerOptions = {
         radius: isPicked ? r + 2 : r,
-        color: isPicked ? '#18432f' : '#ffffff',
-        weight: isPicked ? 4 : 1.5,
-        fillColor: STATUS_INFO[st].color,
+        color: isPicked ? '#18432f' : empty ? STATUS_INFO.vacant.color : '#ffffff',
+        weight: isPicked ? 4 : empty ? 2.5 : 1.5,
+        fillColor: empty ? '#ffffff' : STATUS_INFO[st].color,
         fillOpacity: h.id === selectedId ? 0.35 : 1,
       };
       let m = markers.current.get(h.id);
@@ -388,7 +389,7 @@ export function MapView({ visible }: { visible: boolean }) {
   }
 
   const counts = useMemo(() => {
-    const c: Record<Status, number> = { new: 0, due: 0, done: 0, member: 0, dnv: 0 };
+    const c: Record<Status, number> = { new: 0, due: 0, done: 0, member: 0, vacant: 0, dnv: 0 };
     for (const st of data.statusById.values()) c[st]++;
     return c;
   }, [data.statusById]);
@@ -430,7 +431,7 @@ export function MapView({ visible }: { visible: boolean }) {
                 {data.alerts.total} {perms.isLead ? 'due' : 'tasks'}
               </button>
             )}
-            {STATUS_ORDER.filter((s) => counts[s] > 0 || s !== 'dnv').map((s) => (
+            {STATUS_ORDER.filter((s) => counts[s] > 0 || (s !== 'dnv' && s !== 'vacant')).map((s) => (
               <button key={s} className={`legend-chip ${hidden.has(s) ? 'off' : ''}`} onClick={() => toggleStatus(s)} aria-label={STATUS_INFO[s].label}>
                 <span className="dot" style={{ background: STATUS_INFO[s].color }} />
                 {STATUS_INFO[s].short}

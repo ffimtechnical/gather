@@ -70,6 +70,7 @@ export const TABLES: Record<TableName, ColSpec[]> = {
     { name: 'household_size', type: 'int' },
     { name: 'is_member_household', type: 'bool', notNull: true, def: 'false' },
     { name: 'do_not_visit', type: 'bool', notNull: true, def: 'false' },
+    { name: 'vacant', type: 'bool', notNull: true, def: 'false' },
     { name: 'next_visit_on', type: 'text' },
     { name: 'source', type: 'text', notNull: true, def: `'manual'` },
     { name: 'osm_id', type: 'text' },
@@ -159,6 +160,8 @@ export interface House extends Base {
   household_size: number | null;
   is_member_household: boolean;
   do_not_visit: boolean;
+  /** Nobody lives here (empty or unfinished building), not just "not home" */
+  vacant: boolean;
   next_visit_on: string | null;
   /** manual = pinned by hand; auto = found from building data */
   source: 'manual' | 'osm' | 'auto';
@@ -233,6 +236,7 @@ export const OUTCOMES: { value: string; label: string; counts: boolean }[] = [
   { value: 'good_chat', label: 'Good talk', counts: true },
   { value: 'invited', label: 'Invited', counts: true },
   { value: 'not_home', label: 'Not home', counts: false },
+  { value: 'vacant', label: 'Empty house', counts: false },
   { value: 'gave_life', label: 'Gave life to Christ', counts: true },
   { value: 'came_to_church', label: 'Came to church', counts: true },
   { value: 'needs_help', label: 'Needs help', counts: true },
@@ -261,17 +265,18 @@ export const ZONE_COLORS = ['#2f7a4f', '#2b6cb0', '#8a5a2b', '#7b4fa0', '#b0476b
 // House colour (status) rules
 // ---------------------------------------------------------------------------
 
-export type Status = 'member' | 'new' | 'due' | 'done' | 'dnv';
+export type Status = 'member' | 'new' | 'due' | 'done' | 'vacant' | 'dnv';
 
 export const STATUS_INFO: Record<Status, { label: string; short: string; color: string }> = {
   new: { label: 'Not evangelised', short: 'New', color: '#c8443a' },
   due: { label: 'Follow-up due', short: 'Due', color: '#e07b26' },
   done: { label: 'Checked this week', short: 'Done', color: '#d9a91a' },
   member: { label: 'Members live here', short: 'Members', color: '#1f8a4c' },
+  vacant: { label: 'Empty house', short: 'Empty', color: '#5d7895' },
   dnv: { label: 'Do not visit', short: 'Skip', color: '#8c958d' },
 };
 
-export const STATUS_ORDER: Status[] = ['new', 'due', 'done', 'member', 'dnv'];
+export const STATUS_ORDER: Status[] = ['new', 'due', 'done', 'member', 'vacant', 'dnv'];
 
 /** Monday 00:00 (local) of the week containing `d`. */
 export function startOfWeek(d = new Date()): Date {
@@ -297,6 +302,7 @@ export function lastContact(visits: Visit[]): Visit | undefined {
 
 export function houseStatus(house: House, people: Person[], visits: Visit[], now = new Date()): Status {
   if (house.do_not_visit) return 'dnv';
+  if (house.vacant) return 'vacant';
   if (house.is_member_household || people.some((p) => !p.deleted && p.is_member)) return 'member';
   const last = lastContact(visits);
   if (!last) return 'new';

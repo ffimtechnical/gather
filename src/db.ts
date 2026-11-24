@@ -136,6 +136,7 @@ export async function newHouse(lat: number, lng: number, fields: Partial<House> 
     household_size: null,
     is_member_household: false,
     do_not_visit: false,
+    vacant: false,
     next_visit_on: null,
     source: 'manual',
     osm_id: null,

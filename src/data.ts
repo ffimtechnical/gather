@@ -111,7 +111,7 @@ export function useAppData(sessionUser: User): AppData {
       lastContactById.set(h.id, lc);
       if (st === 'due') followUpsDue.push(h);
       if (st === 'member' && memberCheckDue(hv, now)) membersDue.push(h);
-      if (h.next_visit_on && h.next_visit_on <= today && st !== 'dnv' && (!lc || lc.slice(0, 10) < h.next_visit_on)) scheduledDue.push(h);
+      if (h.next_visit_on && h.next_visit_on <= today && st !== 'dnv' && st !== 'vacant' && (!lc || lc.slice(0, 10) < h.next_visit_on)) scheduledDue.push(h);
     }
     const myTasks = open
       .filter((t) => t.assignee_id === me.id)

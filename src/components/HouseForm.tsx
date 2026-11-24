@@ -1,4 +1,4 @@
-import { Ban, Heart, Minus, Plus, Trash2 } from 'lucide-react';
+import { Ban, Heart, Minus, Plus, Trash2, DoorOpen } from 'lucide-react';
 import { useState } from 'react';
 import type { House } from '../../shared/model';
 import { db, deleteHouse, save } from '../db';
@@ -47,6 +47,7 @@ export function HouseForm({ house, onDeleted }: { house: House; onDeleted?: () =
           </div>
         </Field>
         <Toggle icon={Heart} checked={f.is_member_household} onChange={(v) => up({ is_member_household: v })} label="Member household" />
+        <Toggle icon={DoorOpen} checked={f.vacant} onChange={(v) => up({ vacant: v })} label="Empty house (nobody lives here)" />
         <Toggle icon={Ban} checked={f.do_not_visit} onChange={(v) => up({ do_not_visit: v })} label="Do not visit" />
         <Field label="Next visit">
           <input type="date" value={f.next_visit_on ?? ''} min={todayStr()} onChange={(e) => up({ next_visit_on: nul(e.target.value) })} />
