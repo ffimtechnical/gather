@@ -1,0 +1,41 @@
+/** Common one-tap actions shared by several screens. */
+import { createElement } from 'react';
+import { OUTCOMES, type House, type Person, type Status, type Visit, type VisitKind } from '../shared/model';
+import { blankPerson, blankVisit, completeMyTasks, save, saveRows, setMember } from './db';
+import type { UIState } from './ui';
+import { PersonForm } from './components/PersonForm';
+import { VisitForm } from './components/VisitForm';
+
+export function kindFor(status: Status | undefined): VisitKind {
+  return status === 'member' ? 'member_care' : status === 'new' ? 'evangelism' : 'follow_up';
+}
+
+/** Log a visit with one tap. Completes my tasks at the house; offers Undo. */
+export async function quickLog(ui: UIState, house: House, outcome: string) {
+  const v: Visit = { ...blankVisit(house.id), kind: kindFor(ui.data.statusById.get(house.id)), outcome };
+  await save('visits', v);
+  const done = await completeMyTasks(house.id);
+  const label = OUTCOMES.find((o) => o.value === outcome)?.label ?? 'Visit';
+  const hasPeople = (ui.data.peopleByHouse.get(house.id) ?? []).length > 0;
+  const spoke = outcome !== 'not_home';
+  ui.toast(`${label} logged`, [
+    {
+      label: 'Undo',
+      run: async () => {
+        await save('visits', { ...v, deleted: true });
+        await saveRows('tasks', done.map((t) => ({ ...t, status: 'open' as const, done_at: null })));
+      },
+    },
+    spoke && !hasPeople
+      ? { label: 'Add contact', run: () => ui.openModal(createElement(PersonForm, { person: blankPerson(house.id), isNew: true })) }
+      : { label: 'Add note', run: () => ui.openModal(createElement(VisitForm, { visit: v, house })) },
+  ]);
+}
+
+/** One tap: make someone a member or a contact again, with Undo. */
+export async function toggleMember(ui: UIState, p: Person) {
+  const becoming = !p.is_member;
+  await setMember(p, becoming);
+  const first = p.full_name.split(' ')[0] || 'They';
+  ui.toast(becoming ? `${first} is now a member` : `${first} is no longer a member`, [{ label: 'Undo', run: () => void setMember(p, !becoming) }]);
+}
