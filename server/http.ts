@@ -25,7 +25,9 @@ function respond(r: ApiResult): Response {
 export async function route(request: Request): Promise<Response> {
   if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
   const url = new URL(request.url);
-  const path = url.pathname.replace(/\/+$/, '');
+  // On Vercel every /api/* address is rewritten to the single function with ?__route=<rest of the path>
+  const rewritten = url.searchParams.get('__route');
+  const path = rewritten !== null ? `/api/${rewritten.replace(/^\/+|\/+$/g, '')}` : url.pathname.replace(/\/+$/, '');
   const is = (p: string, m: string) => path.endsWith(p) && request.method === m;
   try {
     if (is('/api/health', 'GET')) {

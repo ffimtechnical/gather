@@ -3,8 +3,10 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "functions": {
-    "api/assistant.ts": { "maxDuration": 60 },
-    "api/transcribe.ts": { "maxDuration": 60 }
+    "api/index.ts": { "maxDuration": 60 }
   },
-  "rewrites": [{ "source": "/((?!api/).*)", "destination": "/index.html" }]
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "/api?__route=:path*" },
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
+  ]
 }

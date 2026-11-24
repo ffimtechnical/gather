@@ -118,7 +118,7 @@ export function Assistant() {
         <div className="ai-off">
           <Sparkles size={32} strokeWidth={1.5} />
           <p>The assistant isn’t switched on yet.</p>
-          <p className="muted small">{ui.data.perms.isAdmin ? 'Add a free GROQ_API_KEY (and optionally GEMINI_API_KEY or OPENROUTER_API_KEY) in your Vercel settings. The README explains how.' : 'Ask your admin to switch it on.'}</p>
+          <p className="muted small">{ui.data.perms.isAdmin ? 'Add a free GROQ_API_KEY (and optionally GEMINI_API_KEY or OPENROUTER_API_KEY) in your Vercel settings. docs/SETUP.md explains how.' : 'Ask your admin to switch it on.'}</p>
         </div>
       ) : (
         <>

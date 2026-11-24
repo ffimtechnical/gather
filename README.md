@@ -1,163 +1,209 @@
 # FFIM Gather
 
-A map-based app that helps a church team reach every house around it, keep in touch with the people they meet and look after their members. It's built for phones and simple to use, and it keeps working when there's no signal.
+FFIM Gather helps our church visit every house in our area, remember who we met, and keep checking on our members.
 
-## What it does
 
-**Three roles, each person signs in by tapping their name** (no code for now):
+**Contents**
 
-| Role | Can do |
-|---|---|
-| **Admin** | Everything. Draws zones on the map (this sets where the church works), picks a zone pastor for each zone, adds and removes people, changes the logo and app name, finds houses anywhere, exports. |
-| **Zone pastor** | Sees their zones. Adds team members to their zone, assigns houses to people with an action (first visit, follow up, member care, invite, pray) and a due day, finds houses in their zone, exports their zone. |
-| **Team member** | Sees their zone and a **My tasks** list. Logs visits, adds people and houses, and drags pins to fix positions. |
-
-**On the map**, each house is a coloured dot. Red means not evangelised, orange means a follow-up is due, yellow means checked this week (it turns orange again next Monday), green means members live there and grey means do not visit. Houses assigned to you have a ring around them.
-
-- **Members list:** under **People**, admins and pastors tap **Add member** to put members on the list, even before their house is on the map. When adding a person to a house, start typing their name or phone number. Matching people from your list appear, and tapping **Use** links them without retyping. If you type someone new, the app offers **Add as member** afterwards.
-- **Making someone a member:** tap the heart next to their name, in the house panel or under **People**. The heart turns green, their house turns green, and it joins the weekly member check-ups (**Zones → Members**). Tap again (or **Undo**) to change back. Deleting a house never deletes members; they go back to the list.
-- **Tap a house** to open its panel. The first row is one-tap visit logging (Prayed, Good talk, Invited, Not home, More). The toast lets you undo or add a contact.
-- **Drag the pin** of the selected house to shift it.
-- **Find houses** (sparkle button) drops a pin on every home on screen or in a whole zone. It uses building outlines Google and Microsoft detected from satellite photos, plus OpenStreetMap, which covers Ghana densely. Sheds and big buildings are skipped.
-- **Church distance:** an admin marks the church (**Manage → Church → Set on map**, or search it and tap **Set as church**). Open a house and tap **To church** to see the road distance, walking time (at about 5 km/h) and a rough driving time, with the route drawn on the map. Nothing is measured unless you ask. **Zones → Nearest to church** sorts houses by road distance.
-- **Ask (AI assistant):** type or speak, for example "we prayed with Kofi today", "who is due near me?" or "assign the due houses in Dansoman to Ama". It looks things up and can log visits, add people, add houses and assign work, always showing a **Confirm** card first. Answers can be read aloud.
-- **Assign** (checklist button) lets you tap several pins, then pick a person, an action and a due day.
-- Logging a visit **completes your task** at that house automatically.
-- **Zones tab** (admins and pastors) shows a growth bar per zone (how much has been reached), plus Due, New, Members and Assigned lists with select-all and assign.
-- **Keeps working on poor signal.** Houses, people and visits are saved on the phone first and sync later.
-- **Export** houses, people, members, visits and tasks to CSV, or make a full backup.
-- **Logo:** your logo is built in. An admin can change it under **Manage** (tap the logo, then Change logo), and every phone and the sign-in screen update. The home-screen icon of an already-installed app keeps the built-in logo. To change that icon too, replace `public/icon-*.png` and redeploy.
+- [For everyone](#for-everyone)
+- [For zone pastors](#for-zone-pastors)
+- [For admins](#for-admins)
+- [Quick answers](#quick-answers)
 
 ---
 
-## Set it up (about 15 minutes, all free tiers)
+## For everyone
 
-You need three free accounts: **GitHub**, **Neon** and **Vercel**.
+### 1. Put the app on your phone
 
-### 1. Put the code on GitHub
-1. Create an account at <https://github.com> and click **New repository**. Name it `ffim-gather` and make it **Private**.
-2. On the new repository page, click **uploading an existing file** and drag in everything from this folder, except `node_modules`, if it exists. Click **Commit**.
+Open the link your pastor sent you.
 
-### 2. Create the database (Neon)
-1. Create an account at <https://neon.tech> and create a project called `ffim-gather`. Pick the region closest to your church.
-2. Click **Connect** and copy the connection string. It starts with `postgresql://…`.
+- **Android:** tap **Install app** on the sign-in screen, or go to **Me** and tap **Install on this phone**.
+- **iPhone:** in Safari, tap **Share**, then **Add to Home Screen**.
 
-### 3. Put the app online (Vercel)
-1. Create an account at <https://vercel.com> using **Continue with GitHub**.
-2. Click **Add New → Project**, choose `ffim-gather` and click **Import**.
-3. Open **Environment Variables** and add:
-   | Name | Value |
-   |---|---|
-   | `DATABASE_URL` | the Neon connection string from step 2 |
-   | `FFIM_SETUP_CODE` | *(optional)* a code needed only to create the first admin. This stops a stranger from claiming your fresh deploy first. |
-4. Click **Deploy**. After a minute you'll get a link like `https://ffim-gather.vercel.app`.
+After that, open **Gather** from its icon. It opens full screen like any other app.
 
-> Tip: In Vercel you can instead open **Storage → Connect Database → Neon**, which fills in `DATABASE_URL` for you.
+<img src="docs/images/10-install.png" alt="Install on Android (left) and iPhone (right)" width="480">
 
-The database tables are created automatically the first time someone syncs. You don't need to do anything else.
+### 2. Sign in
 
-### 4. Switch on the AI assistant (free)
-1. Go to <https://console.groq.com>, sign up (no card needed), open **API Keys** and create one. In Vercel, add it as `GROQ_API_KEY`. This switches on chat and voice (Whisper speech-to-text).
-2. Optional backups, used when Groq is busy: a free Gemini key from <https://aistudio.google.com> as `GEMINI_API_KEY`, and/or a free OpenRouter key from <https://openrouter.ai> as `OPENROUTER_API_KEY`.
-3. Redeploy (**Vercel → Deployments → ⋯ → Redeploy**). The **Ask** tab now works.
+Tap your name. No password is needed.
 
-Free limits (late 2026, they change): Groq's free plan allows roughly 1,000 chats and 2,000 voice clips a day. Gemini Flash's free tier adds a few hundred more a day. That's plenty for a church team. Chats go to these AI companies to be answered, so don't put anything in a chat you wouldn't want them to see.
+If your name isn't on the list, ask your zone pastor to add you.
 
-### 5. Set up and get the team on
-1. Open the link. You'll be asked for your name, and you become the **admin**.
-2. Go to **Manage**, then **Draw zone**. Tap the corners of an area on the map, then tap the check mark. Name the zone.
-3. Under **Team**, tap **+** to add zone pastors and team members. Edit a zone to pick its pastor.
-4. Send the link to everyone. They tap their name to sign in, then choose **Add to Home screen** in the browser menu.
+<img src="docs/images/01-sign-in.png" alt="Sign-in screen with a list of names" width="240">
+
+### 3. Read the map
+
+Every dot is a house. Its colour tells you what to do.
+
+| Dot | Means | What to do |
+|---|---|---|
+| <img src="docs/images/dot-new.png" width="16" alt=""> Red | Not visited yet | Go and share the gospel |
+| <img src="docs/images/dot-due.png" width="16" alt=""> Orange | Visited before, not this week | Follow up |
+| <img src="docs/images/dot-done.png" width="16" alt=""> Yellow | Visited this week | Nothing this week. It turns orange next Monday |
+| <img src="docs/images/dot-member.png" width="16" alt=""> Green | Church members live here | Check on them |
+| <img src="docs/images/dot-vacant.png" width="16" alt=""> Blue ring | Empty house, nobody lives here | Skip it for now |
+| <img src="docs/images/dot-dnv.png" width="16" alt=""> Grey | Do not visit | Skip it |
+
+A dark circle around a dot means the house is one of **your tasks**.
+
+<img src="docs/images/02-map.png" alt="Map with coloured house dots, the church and a zone" width="240">
+
+### 4. See your tasks
+
+Tap **Tasks**. It shows the houses your pastor gave you, starting with the most urgent.
+
+- Tap the **arrow** to get directions.
+- Tap the **green tick** when you're done.
+
+Below your tasks, **Due in your zone** lists other houses that need a follow-up.
+
+<img src="docs/images/03-my-tasks.png" alt="My tasks list" width="240">
+
+### 5. Record a visit in one tap
+
+Tap a house on the map. Then tap what happened: **Prayed**, **Good talk**, **Invited** or **Not home**.
+
+That's it. The visit is saved and the house turns yellow. If it was one of your tasks, the task is marked done.
+
+Made a mistake? Tap **Undo**.
+
+<img src="docs/images/04-log-visit.png" alt="Tapping Prayed on a house" width="480">
+
+### 6. Save the person you met
+
+After a visit, tap **Add contact** in the message at the top. You can also tap **Person** on the house.
+
+Type their name and phone number, then tap **Save**.
+
+If the person is already on the church's list, they show up as you type. Tap **Use** so you don't have to type everything again.
+
+<img src="docs/images/05-add-person.png" alt="Adding a person with name and phone" width="480">
+
+### 7. Someone joined the church
+
+Tap the **heart** next to their name. It turns green, and so does their house.
+
+From then on, the house shows up in the weekly member check-ups.
+
+<img src="docs/images/06-member.png" alt="Green heart next to a member's name" width="240">
+
+### 8. The house is empty
+
+If nobody lives in a house (empty, unfinished or abandoned), tap **Not home**, then tap **House is empty**.
+
+The dot becomes a blue ring and stops showing up as a follow-up. If people move in later, tap **Lived in now**.
+
+<img src="docs/images/07-empty-house.png" alt="Marking a house as empty" width="480">
+
+### 9. A house is missing from the map
+
+1. Tap **Add house**.
+2. Tap the exact spot on the map.
+
+The new pin appears there. If it's in the wrong place, press and drag it to the right spot.
+
+<img src="docs/images/08-add-house.png" alt="Adding a house by tapping the map" width="480">
+
+### 10. Ask Gather
+
+Tap **Ask**. You can type, or tap the **mic** and speak.
+
+- *"What are my tasks today?"*
+- *"Who is due near me?"*
+- *"I visited the Mensah family and invited Kwadwo to church."*
+
+Before Gather changes anything, it shows you what it will do. Tap **Confirm** to save it, or **Cancel**.
+
+<img src="docs/images/09-ask.png" alt="Gather asking to confirm a visit" width="240">
+
+### 11. No network? Keep going
+
+Everything you do is saved on your phone first, and it goes to the church's records when you're back online.
+
+The button at the top right of the map shows a **tick** when everything is saved. A **number** there means that many changes are waiting to be sent.
 
 ---
 
-## Everyday use
+## For zone pastors
 
-- **Pastors:** open the **Zones** tab, then **Due** or **New**. Tap **Select all** (or tick houses), then **Assign**. Pick a person and a day.
-- **Team members:** open **Tasks**, tap the arrow to navigate, knock, then tap the check and choose what happened. Done.
-- When someone joins the church, open their record and switch on **Church member**. Their house turns green.
+You can do everything above, plus the following.
 
----
+### See how your zone is doing
 
-## Install it like an app
+Tap **Zones**. The bar shows how much of your zone has been reached:
 
-Once it's live on Vercel, open the site on a phone:
+- green: members
+- yellow: visited this week
+- orange: follow-up due
+- red: not visited yet
 
-- **Android (Chrome, Edge, Samsung Internet):** sign in, open **Manage** and tap **Install on this phone** (or "Install app" on the sign-in screen).
-- **iPhone/iPad (Safari):** tap **Share**, then **Add to Home Screen**. The app shows these two steps if you tap Install.
+The lists below it show houses that are **Due**, **New** (never visited), **Members** and **Assigned**.
 
-It then opens from its own icon, full screen, with no address bar. The address bar can't be hidden on a plain browser tab, and the install button only appears on the live https site (or localhost), not on a LAN address like 192.168.x.x.
+Tap **Nearest to church** to sort houses by how far they are by road.
 
-**Syncing a lot of data:** the first sign-in on a new phone downloads everything in the person's area. With about 25,000 houses that's 5 pages, usually a few seconds. The sync button shows a percentage while it runs. If the server doesn't answer within a minute, the app stops waiting and tries again 15 seconds later, so syncing can't get stuck.
+<img src="docs/images/11-zone-board.png" alt="Zone board with a progress bar and lists" width="240">
 
-## The map and search (all open source, no API keys)
+### Give houses to your team
 
-| Part | What it uses |
-|---|---|
-| **Map** (default) | [OpenStreetMap](https://www.openstreetmap.org) data, drawn by [OpenFreeMap](https://openfreemap.org). Shows streets, areas and landmarks such as churches, schools, shops and filling stations. Open source, free, no key, no limits. |
-| **Satellite** | Esri satellite photos, with the same OpenStreetMap labels and landmarks on top. Photo dates vary by area. |
-| **Search** | [Photon](https://photon.komoot.io), an open-source OpenStreetMap search made for search-as-you-type. |
-| **Zone outlines** | [Nominatim](https://nominatim.org), OpenStreetMap's own place lookup. It's used only when an admin taps **Make zone** or **Use <area>**. |
-| **Find houses** | [Google-Microsoft-OSM Open Buildings](https://source.coop/vida/google-microsoft-osm-open-buildings) by VIDA (Google Open Buildings v3, Microsoft Building Footprints, OpenStreetMap; CC BY 4.0 / ODbL), read straight from the cloud file. |
-| **Road distance** | OpenStreetMap roads from the same map files. The app joins them into a walking network and runs **A\*** (one house to the church) and **Dijkstra** (all houses at once) on the phone. No routing server is needed. |
-| **Directions** | Opens Google Maps navigation with a plain link (free). |
+1. Tick the houses in a list (or tap **Select all**).
+2. Tap **Assign**.
+3. Pick a person, what to do (**First visit**, **Follow up**, **Member care**…) and when.
+4. Tap **Assign**.
 
-**Ghana:** OpenStreetMap is built by volunteers. Ghana is actively mapped, including by local OSM communities and the Humanitarian OpenStreetMap Team. If a street, landmark or building is missing, anyone can add it at <https://www.openstreetmap.org>, and it appears in the app after the next map update (OpenFreeMap updates weekly).
+The houses then show up in that person's **Tasks**.
 
-**What you can type in the search box:**
-- Areas and places: *Dansoman*, *Kaneshie*, *Madina Zongo Junction*
-- Landmarks: *Korle Bu*, *Accra Mall*, *Kotoka Airport*
-- Coordinates: `5.6037, -0.1870` or `5°36'13.3"N 0°11'13.2"W`
-- Google Maps links, including short `maps.app.goo.gl/…` links shared on WhatsApp
-- Plus codes: `6CQX8F9X+8C` or `8F9X+8C Accra`
-- Your own houses and people, by name, house ID or phone
+To pick houses on the map instead, tap the **checklist button** on the right side of the map, then tap the houses.
 
-GhanaPost GPS addresses (GA-123-4567) can't be looked up with open data, so paste a Google Maps link or the coordinates instead.
+<img src="docs/images/12-assign.png" alt="Selecting houses and assigning them to Yaw" width="480">
 
-**Making zones:** search an area, tap it, then tap **Make zone**. The zone uses the area's official OpenStreetMap outline when one exists. Otherwise, tap the corners yourself (**Manage**, then **Draw zone**, then search to jump there).
+### Add people to your team
 
-**Fair use:** the free public Photon and Nominatim servers are shared, donated services. Search waits until you stop typing, so it doesn't send a request on every key. Area outlines are looked up only when you ask for them, which keeps the app well within their rules. Nominatim's usage policy (<https://operations.osmfoundation.org/policies/nominatim/>) allows at most 1 request per second, no bulk or automatic lookups and no search-as-you-type. That's why Photon handles the search box and Nominatim handles only one-off outlines. If your church ever runs many teams, you can host your own Photon server and set `VITE_PHOTON_URL`.
+1. Go to **Manage** and tap the **+** next to **Team**.
+2. Type their name and phone number, then tap **Add**.
 
-**Optional settings** (not needed): `VITE_MAP_STYLE` (another MapLibre style), `VITE_PHOTO_TILES` (another satellite source), `VITE_PHOTON_URL` (your own search server), `VITE_SEARCH_COUNTRY` (default `GH`; keeps search results local), `VITE_BUILDINGS_PMTILES` (another buildings file). For the AI: `GROQ_MODEL`, `GEMINI_MODEL` and `OPENROUTER_MODEL` choose different free models.
+They can sign in right away by tapping their name.
+
+**Tidy up pins** checks the map for you. It removes dots that aren't really buildings, removes a second dot on the same building, and adds homes that were missed. Houses you've worked with (visits, people, notes) are never removed.
+
+<img src="docs/images/13-team.png" alt="Team list and the Add to team form" width="480">
+
+### Fill your zone with houses
+
+Tap the **sparkle button** on the map. The app finds the homes on screen or in your zone and puts a red dot on each one.
 
 ---
 
-## Connecting to other systems (member management, etc.)
+## For admins
 
-The data structure is built to plug into other systems:
+You can do everything above, plus the following.
 
-- **Every record has a permanent UUID**, made on the phone. It never changes, even across devices.
-- **Link fields:** `houses.external_ref` and `people.external_member_id` hold the ID of the same record in your member management system. Fill them in to match records.
-- **Custom fields:** every table has an `extra` JSON column for new fields that don't need a database change.
-- **Read API** for other platforms (admins and pastors; send `Authorization: Bearer <token>`):
-  - `GET /api/export?table=houses|people|visits|tasks|zones|users&format=json|csv`
-  - `GET /api/export?table=house_overview`: one row per house with status, people count, member count and last contact
-- **Two-way sync API:** `POST /api/sync` with `{cursor, changes:{houses:[…], people:[…], visits:[…]}}`. Any app can use it to send and receive changes. Every change is checked against the signed-in person's role and zones.
-- **Direct database:** It's plain Postgres on Neon, so tools like Metabase, Retool, Supabase or a future .NET or Node build can read the tables (`zones`, `users`, `houses`, `people`, `visits`, `tasks`) and the `house_overview` view directly.
-- **To add a field everywhere**, edit `shared/model.ts`. The database column, sync and exports update automatically.
+- **Draw a zone:** go to **Manage** and tap **Draw zone**. Search for the area's name, or tap its corners on the map. Then tap the tick, give the zone a name and choose its zone pastor. To remove a corner, tap it.
+- **Mark the church:** go to **Manage**, then **Church**, then **Set on map**, and tap the church building. After that, anyone can open a house and tap **To church** to see the road distance and walking time.
+- **Logo and name:** go to **Manage** and tap **Change logo**.
+- **Export:** under **Manage**, you can download houses, people, members, visits and tasks as spreadsheets, or make a full backup.
 
-See `db/schema.sql` for the full table layout.
+<img src="docs/images/14-admin.png" alt="Drawing a zone and the admin Manage page" width="480">
 
 ---
 
-## For developers
+## Quick answers
 
-```bash
-npm install
-cp .env.example .env      # add your DATABASE_URL (Neon or any Postgres)
-npm run dev               # app + API on http://localhost:5173
-npm run build             # production build (PWA, service worker)
-npm run db:setup          # optional: create tables right now
-```
+**I tapped the wrong button.**
+Tap **Undo** in the message at the top of the screen.
 
-| Folder | What's in it |
-|---|---|
-| `shared/model.ts` | The data model, colour rules and labels, shared by the app and server |
-| `server/` | Sign-in and roles (`auth.ts`), permission-aware sync, export, branding, the schema and the database driver (Neon HTTP or node-postgres) |
-| `api/` | Vercel serverless functions (one thin file per route) |
-| `src/` | The React app: `db.ts` (IndexedDB/Dexie), `sync.ts`, `osm.ts` (finding buildings), `routing.ts` (A\* and Dijkstra), `assistant.ts` (AI tools and confirmations), `tiles.ts` (map layers), `geocode.ts` (search) and `components/` |
-| `server/ai.ts` | AI chat with provider fallback (Groq, then Gemini, then OpenRouter) and Whisper transcription. Keys never reach phones. |
+**The pin is in the wrong place.**
+Tap the house, then press and drag its pin.
 
-**Sync model:** offline-first. Edits go to IndexedDB and an outbox, then get pushed. Pulls fetch everything changed since a server revision cursor. When two edits conflict, the latest `updated_at` wins. Deletes are soft (`deleted = true`) so they reach every phone.
+**A dot isn't a real house.**
+Tell your zone pastor. They can delete it (tap it, then **Edit**) or run **Tidy up pins** to clean up the whole map.
 
-**Security note:** For now anyone with the link can sign in as anyone on the list. The server still enforces each role's permissions, but someone could tap another person's name. The backend already supports a PIN per person (`users.pin_hash`). Switching on PINs in the app is a small next step and is recommended before storing much personal data.
+**Someone doesn't want visits.**
+Tap the house, tap **Edit**, and switch on **Do not visit**. The dot turns grey.
+
+**Where are my changes?**
+Look at the button at the top right of the map. A tick means everything is saved. A number means changes are waiting to be sent, which happens as soon as you're online.
+
+**Who can see what?**
+Team members see their own zone. Zone pastors see their zones. Admins see everything.
